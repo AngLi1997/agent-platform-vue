@@ -14,7 +14,7 @@ const menuData = [{
 },
     {
         "key": "flow",
-        "label": "Flow Work",
+        "label": "工作流",
         "icon": "flow",
         "path": "/flow",
         "children": [

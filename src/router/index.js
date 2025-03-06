@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import DeploymentView from "@/views/DeploymentView.vue";
-import DeploymentListView from "@/views/DeploymentListView.vue";
 import WelcomeView from "@/views/WelcomeView.vue";
+import LLMManageView from "@/views/LlmManageView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -10,17 +9,11 @@ const router = createRouter({
       path: '/dashboard/welcome',
       name: 'welcome',
       component: WelcomeView,
-    },
-    {
-      path: '/depList',
-      name: 'depList',
-      component: DeploymentListView
-    },
-    {
-      path: '/dep',
-      name: 'dep',
-      component: DeploymentView,
-    },
+    },{
+      path: '/flow/llm',
+      name: 'llm',
+      component: LLMManageView,
+    }
   ],
 })
 
