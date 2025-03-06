@@ -15,7 +15,7 @@ const list =[
   <a-row :gutter="[24, 24]" style="min-width: 100%">
     <a-col :span="4" v-for="llm in list">
       <a-card hoverable class="llm-card">
-        <AImage width="20px" height="20px" :src="llm.icon"/> {{ llm.name }}
+        <AImage width="20px" height="20px" :src="llm.icon" :preview="false"/> {{ llm.name }}
         <template #actions>
           <setting-outlined key="setting" />
           <edit-outlined key="edit" />
