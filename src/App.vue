@@ -1,11 +1,13 @@
 <script setup>
-import { ref } from 'vue';
+import {ref} from 'vue';
 import {
   UserOutlined,
   LaptopOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined
 } from '@ant-design/icons-vue';
+import LaDynamicMenu from "@/components/LaDynamicMenu.vue";
+import menuData from "@/menuData.js";
 
 // 响应式状态
 const selectedKeys = ref(['1'])
@@ -24,7 +26,7 @@ const logoSimpleText = "D"
         :trigger="null"
     >
       <div class="logo">
-        {{collapsed ? logoSimpleText : logoFullText}}
+        {{ collapsed ? logoSimpleText : logoFullText }}
       </div>
       <a-menu
           v-model:openKeys="openKeys"
@@ -32,26 +34,7 @@ const logoSimpleText = "D"
           theme="dark"
           mode="inline"
       >
-        <a-sub-menu key="sub1">
-          <template #title>
-            <span>
-              <user-outlined/>
-              <span>流程编排</span>
-            </span>
-          </template>
-          <a-menu-item key="1">模型管理</a-menu-item>
-          <a-menu-item key="2">知识库管理</a-menu-item>
-        </a-sub-menu>
-        <a-sub-menu key="sub2">
-          <template #title>
-            <span>
-              <laptop-outlined/>
-              <span>系统配置</span>
-            </span>
-          </template>
-          <a-menu-item key="3">用户列表</a-menu-item>
-          <a-menu-item key="4">权限设置</a-menu-item>
-        </a-sub-menu>
+        <la-dynamic-menu :children="menuData"/>
       </a-menu>
     </a-layout-sider>
 
@@ -73,39 +56,7 @@ const logoSimpleText = "D"
 
       <!-- 内容区域 -->
       <a-layout-content style="margin: 24px 16px; padding: 24px; background: #fff">
-        <!--        <a-row :gutter="[16, 16]">-->
-        <!--          <a-col :span="8">-->
-        <!--            <a-card title="数据概览" hoverable>-->
-        <!--              <p>用户总数: 1,234</p>-->
-        <!--              <p>今日新增: 23</p>-->
-        <!--              <p>活跃用户: 456</p>-->
-        <!--            </a-card>-->
-        <!--          </a-col>-->
-        <!--          <a-col :span="8">-->
-        <!--            <a-card title="最新动态" hoverable>-->
-        <!--              <a-timeline>-->
-        <!--                <a-timeline-item>用户张三登录系统</a-timeline-item>-->
-        <!--                <a-timeline-item>新文章发布</a-timeline-item>-->
-        <!--                <a-timeline-item>系统更新完成</a-timeline-item>-->
-        <!--              </a-timeline>-->
-        <!--            </a-card>-->
-        <!--          </a-col>-->
-        <!--          <a-col :span="8">-->
-        <!--            <a-card title="快捷操作" hoverable>-->
-        <!--              <a-button type="primary" block>新建文章</a-button>-->
-        <!--              <a-button block style="margin-top: 8px">用户审核</a-button>-->
-        <!--              <a-button block style="margin-top: 8px">数据导出</a-button>-->
-        <!--            </a-card>-->
-        <!--          </a-col>-->
-        <!--          <a-col :span="24">-->
-        <!--            <a-card title="访问统计" hoverable>-->
-        <!--              <div style="height: 300px">-->
-        <!--                &lt;!&ndash; 这里可以放置图表 &ndash;&gt;-->
-        <!--                123-->
-        <!--              </div>-->
-        <!--            </a-card>-->
-        <!--          </a-col>-->
-        <!--        </a-row>-->
+        <router-view />
       </a-layout-content>
     </a-layout>
   </a-layout>
