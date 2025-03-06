@@ -5,22 +5,22 @@ import {PlusOutlined} from "@ant-design/icons-vue";
 
 <template>
   <a-row :gutter="[24, 24]">
-    <a-col :span="12">
-      <a-card title="创建应用" hoverable size="small">
-        <div>
-          <a-button type="link">
+    <a-col :span="8">
+      <a-card title="创建应用" size="small">
+        <div class="button-group">
+          <a-button type="text" block>
             <template #icon>
               <PlusOutlined />
             </template>
             创建应用
           </a-button>
-          <a-button type="link">
+          <a-button type="text" block>
             <template #icon>
               <PlusOutlined />
             </template>
             创建工作流
           </a-button>
-          <a-button type="link">
+          <a-button type="text" block>
             <template #icon>
               <PlusOutlined />
             </template>
@@ -31,3 +31,11 @@ import {PlusOutlined} from "@ant-design/icons-vue";
     </a-col>
   </a-row>
 </template>
+<style scoped>
+.button-group button {
+  text-align: left;
+}
+.ant-card {
+  min-width: 395px;
+}
+</style>

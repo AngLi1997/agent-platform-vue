@@ -6,6 +6,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import Components from 'unplugin-vue-components/vite';
 import vueDevTools from 'vite-plugin-vue-devtools'
 import {AntDesignVueResolver} from "unplugin-vue-components/resolvers";
+import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
