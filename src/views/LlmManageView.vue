@@ -1,10 +1,14 @@
 <script lang="ts" setup>
 import {SettingOutlined, EditOutlined, EllipsisOutlined, DeleteOutlined, PlusOutlined} from '@ant-design/icons-vue';
-import {reactive, ref} from "vue";
+import {nextTick, reactive, ref, UnwrapRef} from "vue";
 import axios from "axios";
 import {TableProps} from "ant-design-vue";
+
+const addLLMForm = ref()
+const inputLLMForm = ref()
 const addLLMVisible = ref(false)
 const importFromOllamaVisible = ref(false)
+
 interface AddLLMFormData {
   llmType: 'llm' | 'embedding',
   name: string,
@@ -14,10 +18,21 @@ interface AddLLMFormData {
   supportVision: boolean,
   supportFunctionCall: boolean,
 }
+
 interface ImportFromOllamaFormData {
   url: string
 }
-const addLLMFormData = reactive<AddLLMFormData>({
+
+interface TableColumn {
+  key: string,
+  name: string,
+  parameter_size: string,
+  quantization_level:string,
+  size: string,
+  modified_at: string
+}
+
+const addLLMFormData : UnwrapRef<AddLLMFormData> =  reactive({
   llmType: 'llm',
   maxContentLength: 4096,
   name: undefined,
@@ -26,40 +41,41 @@ const addLLMFormData = reactive<AddLLMFormData>({
   supportVision: undefined,
   supportFunctionCall: undefined,
 })
+
 const importFromOllamaFormData = reactive<ImportFromOllamaFormData>({
   url: "http://192.168.110.129:11434"
 })
-interface TableColumn {
-  name: string,
-  parameter_size: string,
-  quantization_level:string,
-  size: string,
-  modified_at: string
-}
+
 const importFromOllamaTableColumns = [
   {
     title: '模型名称',
     key: 'name',
     dataIndex: 'name'
   },{
+    title: '参数类型',
+    key: 'llmType',
+    dataIndex: 'llmType'
+  },{
     title: '参数大小',
-    key: 'parameter_size',
-    dataIndex: 'parameter_size'
+    key: 'parameterSize',
+    dataIndex: 'parameterSize'
   },{
     title: '量化级别',
-    key: 'quantization_level',
-    dataIndex: 'quantization_level'
+    key: 'quantizationLevel',
+    dataIndex: 'quantizationLevel'
   },{
     title: '模型大小',
     key: 'size',
     dataIndex: 'size'
   },{
     title: '更新时间',
-    key: 'modified_at',
-    dataIndex: 'modified_at',
+    key: 'modifiedAt',
+    dataIndex: 'modifiedAt',
   }
 ]
+
 const importFromOllamaTableData = ref([]);
+
 const list =[
   {
     name: "DeepSeek-r1:32b",
@@ -88,28 +104,37 @@ const queryOllamaTagApi = (url:string) => {
   axios.get(url + "/api/tags")
       .then(res => {
         importFromOllamaTableData.value = res.data.models.map(model => ({
+          key: model.name,
           name: model.name,
+          llmType: getLLmType(model.details.quantization_level),
           size: formatBytes(model.size),
-          parameter_size: model.details.parameter_size,
-          quantization_level: model.details.quantization_level,
-          modified_at: formatDateWithTimezone(model.modified_at)
+          parameterSize: model.details.parameter_size,
+          quantizationLevel: model.details.quantization_level,
+          modifiedAt: formatDateWithTimezone(model.modified_at)
         }))
       })
+}
+const getLLmType = (quantizationLevel: string) => {
+  if (quantizationLevel.startsWith("F")) {
+    return "embedding"
+  }else if (quantizationLevel.startsWith("Q")) {
+    return "llm"
+  }else {
+    return null
+  }
 }
 const rowSelection: TableProps['rowSelection'] = {
   onChange: (selectedRowKeys: string[], selectedRows: TableColumn[]) => {
     console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
   }
 };
-function formatDateWithTimezone(dateStr:string) {
-  const date = new Date(dateStr);
-  return date.getFullYear() + '年'
-      + date.getMonth() + '月'
-      + date.getDate() + '日 '
-      + date.getHours() + '时'
-      + date.getMinutes() + '分'
-      + date.getSeconds() + '秒'
+
+const formatDateWithTimezone = (dateStr:string) => {
+  const formattedDate = dateStr.replace(/T|\.\d+|\+.*/g, ' ');
+// 替换T为空格，删除毫秒和时区部分，然后去除多余空格
+  return formattedDate.trim().replace(' ', ' ');
 }
+
 const formatBytes = (bytes :number) =>  {
   if (bytes === 0) return '0 B';
   const units = ['B', 'KB', 'MB', 'GB', 'TB'];
@@ -121,6 +146,11 @@ const formatBytes = (bytes :number) =>  {
   // 保留两位小数，并移除末尾的零（如 1.00 → 1, 1.50 → 1.5）
   const formatted = bytes.toFixed(2).replace(/\.?0+$/, '');
   return `${formatted} ${units[index]}`;
+}
+const resetForm = () => {
+  addLLMForm.value?.resetFields();
+  inputLLMForm.value?.resetFields();
+  importFromOllamaTableData.value = []
 }
 </script>
 
@@ -149,36 +179,36 @@ const formatBytes = (bytes :number) =>  {
       </template>
     </a-card>
   </div>
-  <a-modal v-model:open="addLLMVisible" centered destroy-on-close :body-style="{height: '500px', overflow: 'scroll'}">
+  <a-modal v-model:open="addLLMVisible" centered :body-style="{height: '500px', overflow: 'scroll'}" @cancel="resetForm">
     <template #title>
       添加模型
     </template>
-    <a-form :layout="'vertical'" :model="addLLMFormData">
-      <a-form-item label="模型类型" required>
+    <a-form ref="addLLMForm" :layout="'vertical'" :model="addLLMFormData">
+      <a-form-item label="模型类型" name="llmType" required>
        <a-radio-group v-model:value="addLLMFormData.llmType">
          <a-radio-button value="llm">LLM</a-radio-button>
          <a-radio-button value="embedding">Text Embedding</a-radio-button>
        </a-radio-group>
       </a-form-item>
-      <a-form-item label="模型名称" required>
+      <a-form-item label="模型名称" name="name" required>
         <a-input v-model:value="addLLMFormData.name" placeholder="输入模型名称" />
       </a-form-item>
-      <a-form-item label="基础URL" required>
+      <a-form-item label="基础URL" name="url" required>
         <a-input v-model:value="addLLMFormData.url" placeholder="Ollama server 的基础 URL，例如 http://127.0.0.1:11434" />
       </a-form-item>
-      <a-form-item label="模型上下文长度" required>
+      <a-form-item label="模型上下文长度" name="maxContentLength" required>
         <a-input-number v-model:value="addLLMFormData.maxContentLength" :min="1" />
       </a-form-item>
-      <a-form-item label="最大token上限" required>
+      <a-form-item label="最大token上限" name="maxTokenLength" required>
         <a-input-number v-model:value="addLLMFormData.maxTokenLength" />
       </a-form-item>
-      <a-form-item label="是否支持Vision">
+      <a-form-item label="是否支持Vision" name="supportVision">
         <a-radio-group v-model:value="addLLMFormData.supportVision">
           <a-radio-button value="true">是</a-radio-button>
           <a-radio-button value="false">否</a-radio-button>
         </a-radio-group>
       </a-form-item>
-      <a-form-item label="是否支持函数调用">
+      <a-form-item label="是否支持函数调用" name="supportFunctionCall">
         <a-radio-group v-model:value="addLLMFormData.supportFunctionCall">
           <a-radio-button value="true">是</a-radio-button>
           <a-radio-button value="false">否</a-radio-button>
@@ -186,12 +216,12 @@ const formatBytes = (bytes :number) =>  {
       </a-form-item>
     </a-form>
   </a-modal>
-  <a-modal v-model:open="importFromOllamaVisible" centered destroy-on-close width="1000px">
+  <a-modal v-model:open="importFromOllamaVisible" centered destroy-on-close width="1000px" @cancel="resetForm">
     <template #title>
       从Ollama导入
     </template>
-    <a-form :layout="'vertical'" :model="importFromOllamaFormData">
-      <a-form-item label="基础URL" required>
+    <a-form ref="inputLLMForm" :layout="'vertical'" :model="importFromOllamaFormData">
+      <a-form-item label="基础URL" required name="url">
         <a-input v-model:value="importFromOllamaFormData.url" placeholder="Ollama server 的基础 URL，例如 http://127.0.0.1:11434" />
       </a-form-item>
       <a-button @click="queryOllamaTagApi(importFromOllamaFormData.url)">导入</a-button>
@@ -205,16 +235,17 @@ const formatBytes = (bytes :number) =>  {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  min-width: 198px;
 }
 .button-group {
-  flex: 1 0 calc(25% - 10px);
+  flex: 1 0 calc(20% - 10px);
   min-width: 200px;
-  max-width: calc(25% - 10px);
+  max-width: calc(20% - 10px);
 }
 .llm-card {
-  flex: 1 0 calc(25% - 10px);
+  flex: 1 0 calc(20% - 10px);
   min-width: 200px;
-  max-width: calc(25% - 10px);
+  max-width: calc(20% - 10px);
   max-height: 121px;
 }
 .button-group button {

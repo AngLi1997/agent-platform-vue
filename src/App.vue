@@ -55,7 +55,7 @@ const logoSimpleText = "D"
       </a-layout-header>
 
       <!-- 内容区域 -->
-      <a-layout-content style="margin: 24px 16px; padding: 24px; background: #fff">
+      <a-layout-content style="margin: 24px 16px; padding: 24px; background: #fff; min-width: 246px">
         <router-view />
       </a-layout-content>
     </a-layout>
