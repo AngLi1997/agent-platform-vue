@@ -36,6 +36,11 @@ const menuData = [{
                 "icon": "agent",
                 "path": "/flow/agent"
             },{
+                "key": "process",
+                "label": "流程管理",
+                "icon": "process",
+                "path": "/flow/process"
+            },{
                 "key": "knowledge",
                 "label": "知识库管理",
                 "icon": "knowledge",

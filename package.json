@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@ant-design/icons-vue": "^7.0.1",
+    "@antv/x6": "^2.18.1",
+    "@antv/x6-plugin-dnd": "^2.1.1",
     "ant-design-vue": "^4.2.6",
     "axios": "^1.8.1",
     "pinia": "^3.0.1",
