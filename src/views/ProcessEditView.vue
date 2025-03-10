@@ -7,7 +7,8 @@ import {
   CodeSandboxOutlined,
   FileSearchOutlined,
   CheckCircleOutlined,
-  SearchOutlined
+  SearchOutlined,
+  GlobalOutlined
 } from "@ant-design/icons-vue";
 import {Snapline} from "@antv/x6-plugin-snapline";
 import {Selection} from "@antv/x6-plugin-selection";
@@ -17,6 +18,10 @@ import LLMNode from "./nodes/LLMNode.vue";
 import StartNode from "./nodes/StartNode.vue";
 import EndNode from "./nodes/EndNode.vue";
 import KnowledgeNode from "./nodes/KnowledgeNode.vue";
+import {Keyboard} from "@antv/x6-plugin-keyboard";
+import {message} from "ant-design-vue";
+import {History} from "@antv/x6-plugin-history";
+import SearchOnWebNode from "./nodes/SearchOnWebNode.vue";
 
 const graph = ref<Graph>()
 const dnd = ref<Dnd>()
@@ -29,6 +34,9 @@ const processNodeList = [{
   nodeType: 'LLMNode',
   component: LLMNode,
   height: 75
+}, {
+  nodeType: 'SearchOnWebNode',
+  component: SearchOnWebNode
 }, {
   nodeType: 'KnowledgeNode',
   component: KnowledgeNode
@@ -131,6 +139,16 @@ onMounted(() => {
           factor: 4, // 主次网格线间隔
         },
       ],
+    },
+    connecting: {
+      snap: {
+        radius: 20
+      },
+      allowBlank: false,
+      allowLoop: false,
+      allowNode: false,
+      allowEdge: false,
+      allowMulti: false
     }
   })
   graph.value.use(new Snapline({enabled: true}))
@@ -138,9 +156,57 @@ onMounted(() => {
     enabled: true,
     showNodeSelectionBox: true,
     showEdgeSelectionBox: true,
-    pointerEvents: 'none'
+    pointerEvents: 'none',
+    rubberband: true
   }))
-  graph.value.use(new Clipboard({enabled: true}))
+  graph.value.use(new Clipboard({enabled: true, useLocalStorage: true}))
+  graph.value.use(new History({
+    enabled: true
+  }))
+  graph.value.use(new Keyboard({
+    enabled: true,
+    global: true
+  }))
+
+  graph.value.bindKey(['ctrl+c', 'command+c'], () => {
+    const cells = graph.value.getSelectedCells()
+    if (cells && cells.length) {
+      graph.value.copy(cells)
+      message.success('复制成功')
+    }
+  })
+  graph.value.bindKey(['ctrl+v', 'command+v'], () => {
+    if (graph.value.isClipboardEmpty()) {
+      message.info('剪切板为空，不可粘贴')
+    } else {
+      const cells = graph.value.paste()
+      graph.value.cleanSelection()
+      graph.value.select(cells)
+      message.success('粘贴成功')
+    }
+  })
+  graph.value.bindKey(['backspace'], () => {
+    const cells = graph.value.getSelectedCells()
+    if (cells && cells.length) {
+      graph.value.removeCells(cells)
+      message.success('删除成功')
+    }
+  })
+
+  graph.value.bindKey(['ctrl+a', 'command+a'], () => {
+    graph.value.select(graph.value.getCells())
+  })
+  graph.value.bindKey(['ctrl+z', 'command+z'], () => {
+    if (graph.value.canUndo){
+      graph.value.undo()
+    }
+  })
+  graph.value.bindKey(['ctrl+shift+z', 'command+shift+z'], () => {
+    if (graph.value.canRedo){
+      graph.value.redo()
+    }
+  })
+
   dnd.value = new Dnd({
     target: graph.value,
     scaled: true,
@@ -165,6 +231,10 @@ onMounted(() => {
       <a-button @mousedown="(e:any)=> startDrag(e, 'LLMNode')" block type="text">
         <CodeSandboxOutlined/>
         LLM模型
+      </a-button>
+      <a-button @mousedown="(e:any)=> startDrag(e, 'SearchOnWebNode')" block type="text">
+        <GlobalOutlined />
+        联网搜索
       </a-button>
       <a-button @mousedown="(e:any)=> startDrag(e, 'KnowledgeNode')" block type="text">
         <FileSearchOutlined/>
@@ -199,7 +269,7 @@ onMounted(() => {
 
 #dnd {
   position: absolute;
-  top: 20px;
+  top: 50px;
   left: 20px;
   width: 200px;
   height: 600px;
