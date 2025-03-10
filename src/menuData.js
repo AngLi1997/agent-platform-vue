@@ -47,35 +47,36 @@ const menuData = [{
                 "path": "/flow/knowledge"
             }
         ]
-    }, {
-        "key": "system",
-        "label": "系统管理",
-        "icon": "setting",
-        "path": "/system",
-        "children": [
-            {
-                "key": "users",
-                "label": "用户管理",
-                "icon": "dashboard",
-                "path": "/system/users"
-            }, {
-                "key": "roles",
-                "label": "角色管理",
-                "icon": "dashboard",
-                "path": "/system/roles"
-            }, {
-                "key": "permission",
-                "label": "权限管理",
-                "icon": "dashboard",
-                "path": "/system/permission"
-            }, {
-                "key": "config",
-                "label": "系统配置",
-                "icon": "config",
-                "path": "/system/config"
-            }
-        ]
-    }
+    },
+    // {
+    //     "key": "system",
+    //     "label": "系统管理",
+    //     "icon": "setting",
+    //     "path": "/system",
+    //     "children": [
+    //         {
+    //             "key": "users",
+    //             "label": "用户管理",
+    //             "icon": "dashboard",
+    //             "path": "/system/users"
+    //         }, {
+    //             "key": "roles",
+    //             "label": "角色管理",
+    //             "icon": "dashboard",
+    //             "path": "/system/roles"
+    //         }, {
+    //             "key": "permission",
+    //             "label": "权限管理",
+    //             "icon": "dashboard",
+    //             "path": "/system/permission"
+    //         }, {
+    //             "key": "config",
+    //             "label": "系统配置",
+    //             "icon": "config",
+    //             "path": "/system/config"
+    //         }
+    //     ]
+    // }
 ]
 
 export default menuData

@@ -13,7 +13,7 @@ import menuData from "@/menuData.js";
 const selectedKeys = ref(['1'])
 const openKeys = ref(['sub1'])
 const collapsed = ref(false)
-const logoFullText = "DeepSeek-R1:32b"
+const logoFullText = "DeepSeek"
 const logoSimpleText = "D"
 </script>
 
